@@ -26,6 +26,6 @@ jobs:
       - name: Install Requirements
         run: pip install --upgrade pip -r requirements.txt
       - name: Run Rss to Telegram
-        run: python example.py
+        run: python example.py https://www.amazon.com.br/hz/wishlist/genericItemsPage/2F0U1BFKVJ3BM?type=wishlist'&'filter=unpurchased'&'sort=price-asc'&'viewType=list
         env:
           DESTINATION: ${{ secrets.DESTINATION }}
