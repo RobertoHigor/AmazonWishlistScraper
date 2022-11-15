@@ -1,7 +1,17 @@
 import scrapy
 import re
 from urllib.parse import urlparse
+import math
 
+# https://www.programiz.com/python-programming/examples/check-string-number
+def try_parse_float(num):
+    try:
+        convertedValue = float(num)
+        if math.isinf(convertedValue):
+            return 0
+        return convertedValue
+    except ValueError:
+        return 0
 
 class AmazonWishlistSpider(scrapy.Spider):
     BASE_URL = 'https://www.amazon.com.br'
@@ -15,7 +25,7 @@ class AmazonWishlistSpider(scrapy.Spider):
         domain = re.sub(r'(http|https)?://', '', uri)
         self.allowed_domains.append(domain)
 
-        super().__init__(**kwargs)
+        super().__init__(**kwargs)   
 
     def parse(self, response):
         page_items = response.css(".g-item-sortable")
@@ -27,8 +37,8 @@ class AmazonWishlistSpider(scrapy.Spider):
             obj = {
                 'id': id,
                 'title': title,
-                'price': int(price) if price.isdecimal() else 0
-            }
+                'price': try_parse_float(price)
+            }       
 
             self.scraped_data.append(obj)
             yield obj

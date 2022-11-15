@@ -8,9 +8,8 @@
             "name": "Python: Módulo",
             "type": "python",
             "request": "launch",
-            "module": "example",
-            "justMyCode": true,
-            "args": ["https://www.amazon.com.br/hz/wishlist/genericItemsPage/2F0U1BFKVJ3BM?type=wishlist'&'filter=unpurchased'&'sort=price-asc'&'viewType=list"]
+            "module": "main",
+            "justMyCode": true
         }
     ]
 }
