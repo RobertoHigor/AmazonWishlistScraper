@@ -23,22 +23,19 @@ class AmazonWishlistSpider(scrapy.Spider):
         for item in page_items:
             id = item.css('li::attr(data-itemid)').extract_first()
             title = item.css('#itemName_'+id + "::attr(title)").extract_first()
-            #link = item.css('#itemName_'+id + "::attr(href)").extract_first()
-            #img = item.css('#itemImage_'+id).css('img::attr(src)').extract_first()
             price = item.css('::attr(data-price)').extract_first()
             obj = {
                 'id': id,
                 'title': title,
-                'price': price
+                'price': int(price) if price.isdecimal() else 0
             }
 
             self.scraped_data.append(obj)
             yield obj
 
         # manage "infinite scrolldown"
-        teste = response.css('input.showMoreUrl::attr(value)').extract_first()
-        #has_next = response.css('#sort-by-price-next-batch-lek::attr(value)').extract_first()
-        if teste:
-            next_page = urlparse(self.BASE_URL + teste).geturl()
+        has_next = response.css('input.showMoreUrl::attr(value)').extract_first()
+        if has_next:
+            next_page = urlparse(self.BASE_URL + has_next).geturl()
             yield scrapy.Request(next_page)
 

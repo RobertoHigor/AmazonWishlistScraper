@@ -4,7 +4,6 @@ on:
   schedule:
     - cron: '0 */1 * * *'
 
-
 jobs:
   amazonwishlist:
     runs-on: ubuntu-latest
@@ -18,7 +17,10 @@ jobs:
         uses: dawidd6/action-download-artifact@v2
         with:
           workflow: cron.yml
-          workflow_conclusion: success      
+          workflow_conclusion: success  
+      - name: Move database
+        continue-on-error: true
+        run: mv  AmazonWishlistScraper/wishlist.sqlite wishlist.sqlite
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
@@ -26,6 +28,13 @@ jobs:
       - name: Install Requirements
         run: pip install --upgrade pip -r requirements.txt
       - name: Run Rss to Telegram
-        run: python example.py https://www.amazon.com.br/hz/wishlist/genericItemsPage/2F0U1BFKVJ3BM?type=wishlist'&'filter=unpurchased'&'sort=price-asc'&'viewType=list
+        run: python main.py
         env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
           DESTINATION: ${{ secrets.DESTINATION }}
+          WISHLIST_URL: ${{ secrets.WISHLIST_URL }}
+      - name: Upload wishlist database
+        uses: actions/upload-artifact@v3
+        with:
+          name: wishlist
+          path: wishlist.sqlite
