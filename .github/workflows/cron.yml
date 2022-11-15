@@ -21,6 +21,9 @@ jobs:
       - name: Move database
         continue-on-error: true
         run: mv amazonwishlist/wishlist.sqlite wishlist.sqlite
+      - name: Move teste
+        continue-on-error: true
+        run: ls
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
