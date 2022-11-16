@@ -14,15 +14,16 @@ def is_on_sale(item):
         last_item = check_if_exists(item)
         if last_item is None:
                 add_item(item)
+                add_item_history(item)
                 return False
-
+       
+        add_item_history(item)
+        update_item(item)
         currentPrice = item['price']
         lastPrice = item['price']
         if currentPrice < lastPrice:
                 return True
-
-        update_item(item)
-
+     
 def add_item(item):
         conn = sqlite3.connect('wishlist.sqlite')
         cursor = conn.cursor()
@@ -31,6 +32,13 @@ def add_item(item):
         conn.commit()
         conn.close()
 
+def add_item_history(item):
+        conn = sqlite3.connect('wishlist.sqlite')
+        cursor = conn.cursor()
+        aux = f'INSERT INTO wishlist_history (ProductId, Price, DatePrice) VALUES ("{item["id"]}", {item["price"]}, datetime("now"))'
+        cursor.execute(aux)
+        conn.commit()
+        conn.close()
 def update_item(item):
         conn = sqlite3.connect('wishlist.sqlite')
         cursor = conn.cursor()
