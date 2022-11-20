@@ -69,9 +69,25 @@ def check_if_exists(item):
         conn.close()
         return data
 
+def aviso_volta_estoque(item):
+        itemMessage = f"# {item['title']} \n Está de volta em estoque custando: {item['price']}"
+        bot.send_message(DESTINATION, itemMessage, parse_mode='MARKDOWN')
+
+def remover_precos_duplicados_historico():
+        conn = sqlite3.connect('wishlist.sqlite')
+        cursor = conn.cursor()
+        aux = f'DELETE FROM wishlist_history WHERE Id not in (select Id from wishlist_history group by ProductId, Price)'
+        cursor.execute(aux)
+        conn.commit()
+        conn.close()
+
 wishlist_data = scraper.get_data(WISHLIST_URL)
 
 for item in wishlist_data:
+        # Executar script se for switch oled
+        if item['Id'] == 'I3KMIYEAPY0NB5':
+                remover_precos_duplicados_historico()
+
         sale = is_on_sale(item)
         if sale and item['oferta'] is not None:
                 itemMessage = f"# {item['title']} \n Está em oferta Amazon custando: {item['price']}"
@@ -80,8 +96,4 @@ for item in wishlist_data:
                 itemMessage = f"# {item['title']} \n Está em promoção custando: {item['price']}"
                 bot.send_message(DESTINATION, itemMessage, parse_mode='MARKDOWN')
 
-def aviso_volta_estoque(item):
-        itemMessage = f"# {item['title']} \n Está de volta em estoque custando: {item['price']}"
-        bot.send_message(DESTINATION, itemMessage, parse_mode='MARKDOWN')
-
-print("Finished")
+print("Finalizando")
