@@ -2,6 +2,7 @@ import scraper
 import telebot
 import sqlite3
 import os
+import logging
 
 BOT_TOKEN = os.environ.get('BOT_TOKEN')
 WISHLIST_URL = os.environ.get('WISHLIST_URL')
@@ -85,14 +86,17 @@ wishlist_data = scraper.get_data(WISHLIST_URL)
 
 for item in wishlist_data:
         # Executar script se for switch oled
-        if item['Id'] == 'I3KMIYEAPY0NB5':
+        if item['id'] == 'I3KMIYEAPY0NB5':
+                logging.info(f"Removendo preços duplicados por conter {item['title']} na lista")
                 remover_precos_duplicados_historico()
 
         sale = is_on_sale(item)
         if sale and item['oferta'] is not None:
+                logging.info(f"Enviando item {item['title']} em promoção por {item['price']}")
                 itemMessage = f"# {item['title']} \n Está em oferta Amazon custando: {item['price']}"
                 bot.send_message(DESTINATION, itemMessage, parse_mode='MARKDOWN')
         elif sale:
+                logging.info(f"Enviando item {item['title']} voltando em estoque por {item['price']}")
                 itemMessage = f"# {item['title']} \n Está em promoção custando: {item['price']}"
                 bot.send_message(DESTINATION, itemMessage, parse_mode='MARKDOWN')
 
