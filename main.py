@@ -31,7 +31,8 @@ def is_on_sale(item):
                 aviso_volta_estoque(item)
                 return False     
 
-        if item['oferta'] is not None or precoAtual < precoAnterior:
+        #if item['oferta'] is not None or precoAtual < precoAnterior:
+        if precoAtual < precoAnterior:
                 return True        
 
         return False
@@ -69,11 +70,14 @@ def check_if_exists(item):
         data = cursor.fetchone()
         conn.close()
 
-        return {
-                'id': data[0],
-                'title': data[1],
-                'price': data[2]
-        }
+        if data is not None:
+                return {
+                        'id': data[0],
+                        'title': data[1],
+                        'price': data[2]
+                }
+        
+        return data
 
 def aviso_volta_estoque(item):
         itemMessage = f"# {item['title']} \n Está de volta em estoque custando: {item['price']}"
@@ -96,14 +100,14 @@ for item in wishlist_data:
                 remover_precos_duplicados_historico()
 
         sale = is_on_sale(item)
-        # Controle do que ja foi alertado
+        #TODO: Controle do que ja foi alertado
         # if sale and item['oferta'] is not None:
         #         logging.info(f"Enviando item {item['title']} em promoção por {item['price']}")
         #         itemMessage = f"# {item['title']} \n Está em oferta Amazon custando: {item['price']}"
         #         bot.send_message(DESTINATION, itemMessage, parse_mode='MARKDOWN')
         if sale:
                 logging.info(f"Enviando item {item['title']} voltando em estoque por {item['price']}")
-                itemMessage = f"# {item['title']} \n Está em promoção custando: {item['price']}"
+                itemMessage = f"*{item['title']}* \n Está em promoção custando: _R${item['price']}_ \n [Clique para acessar]({item['link']})"
                 bot.send_message(DESTINATION, itemMessage, parse_mode='MARKDOWN')
 
 print("Finalizando")
