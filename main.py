@@ -1,4 +1,3 @@
-import argparse
 import scraper
 import telebot
 import sqlite3
@@ -16,14 +15,27 @@ def is_on_sale(item):
                 add_item(item)
                 add_item_history(item)
                 return False
-       
-        add_item_history(item)
-        update_item(item)
-        currentPrice = item['price']
-        lastPrice = item['price']
-        if currentPrice < lastPrice:
-                return True
-     
+
+        precoAtual = item['price']
+        precoAnterior = last_item['price']
+        # Somente salvar se houve mudança de preco
+        if precoAtual != precoAnterior:
+                add_item_history(item)
+                update_item(item) 
+
+        # Não salvar se preço for 0
+        if precoAtual <= 0:
+                return False
+        elif precoAtual > 0 and precoAnterior == 0:
+                aviso_volta_estoque(item)
+                return False     
+
+        if item['oferta'] is not None or precoAtual < precoAnterior:
+                return True        
+
+        return False
+
+
 def add_item(item):
         conn = sqlite3.connect('wishlist.sqlite')
         cursor = conn.cursor()
@@ -39,6 +51,7 @@ def add_item_history(item):
         cursor.execute(aux)
         conn.commit()
         conn.close()
+        
 def update_item(item):
         conn = sqlite3.connect('wishlist.sqlite')
         cursor = conn.cursor()
@@ -60,8 +73,15 @@ wishlist_data = scraper.get_data(WISHLIST_URL)
 
 for item in wishlist_data:
         sale = is_on_sale(item)
-        if sale:
+        if sale and item['oferta'] is not None:
+                itemMessage = f"# {item['title']} \n Está em oferta Amazon custando: {item['price']}"
+                bot.send_message(DESTINATION, itemMessage, parse_mode='MARKDOWN')
+        elif sale:
                 itemMessage = f"# {item['title']} \n Está em promoção custando: {item['price']}"
                 bot.send_message(DESTINATION, itemMessage, parse_mode='MARKDOWN')
+
+def aviso_volta_estoque(item):
+        itemMessage = f"# {item['title']} \n Está de volta em estoque custando: {item['price']}"
+        bot.send_message(DESTINATION, itemMessage, parse_mode='MARKDOWN')
 
 print("Finished")

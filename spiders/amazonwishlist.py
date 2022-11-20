@@ -34,10 +34,12 @@ class AmazonWishlistSpider(scrapy.Spider):
             id = item.css('li::attr(data-itemid)').extract_first()
             title = item.css('#itemName_'+id + "::attr(title)").extract_first()
             price = item.css('::attr(data-price)').extract_first()
+            ofertaDesconto = item.css('div.wl-deal-rich-badge-label span::text').extract_first()
             obj = {
                 'id': id,
                 'title': title,
-                'price': try_parse_float(price)
+                'price': try_parse_float(price),
+                'oferta': ofertaDesconto
             }       
 
             self.scraped_data.append(obj)
