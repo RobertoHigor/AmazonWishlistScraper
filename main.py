@@ -7,6 +7,7 @@ import logging
 BOT_TOKEN = os.environ.get('BOT_TOKEN')
 WISHLIST_URL = os.environ.get('WISHLIST_URL')
 DESTINATION = os.environ.get('DESTINATION')
+DISCOUNT = os.environ.get('DISCOUNT')
 
 bot = telebot.TeleBot(BOT_TOKEN)
 
@@ -15,7 +16,7 @@ def is_on_sale(item):
         if last_item is None:
                 add_item(item)
                 add_item_history(item)
-                return False
+                return False, 0
 
         precoAtual = item['price']
         precoAnterior = last_item['price']
@@ -26,16 +27,18 @@ def is_on_sale(item):
 
         # Não salvar se preço for 0
         if precoAtual <= 0:
-                return False
+                return False, 0
         elif precoAtual > 0 and precoAnterior == 0:
                 aviso_volta_estoque(item)
-                return False     
+                return False, 0     
 
         #if item['oferta'] is not None or precoAtual < precoAnterior:
-        if precoAtual < precoAnterior:
-                return True        
+        if precoAnterior <= 0:
+                return False, 0
+        if (precoAnterior / precoAtual) - 1  > float(DISCOUNT):
+                return True, precoAnterior        
 
-        return False
+        return False, 0
 
 
 def add_item(item):
@@ -80,7 +83,7 @@ def check_if_exists(item):
         return data
 
 def aviso_volta_estoque(item):
-        itemMessage = f"# {item['title']} \n Está de volta em estoque custando: {item['price']}"
+        itemMessage = f"*{item['title']}* \n Está de volta em estoque custando: {item['price']} \n [Clique para acessar]({item['link']})"
         bot.send_message(DESTINATION, itemMessage, parse_mode='MARKDOWN')
 
 def remover_precos_duplicados_historico():
@@ -99,7 +102,7 @@ for item in wishlist_data:
                 logging.info(f"Removendo preços duplicados por conter {item['title']} na lista")
                 remover_precos_duplicados_historico()
 
-        sale = is_on_sale(item)
+        sale, precoAnterior = is_on_sale(item)
         #TODO: Controle do que ja foi alertado
         # if sale and item['oferta'] is not None:
         #         logging.info(f"Enviando item {item['title']} em promoção por {item['price']}")
@@ -107,7 +110,7 @@ for item in wishlist_data:
         #         bot.send_message(DESTINATION, itemMessage, parse_mode='MARKDOWN')
         if sale:
                 logging.info(f"Enviando item {item['title']} voltando em estoque por {item['price']}")
-                itemMessage = f"*{item['title']}* \n Está em promoção custando: _R${item['price']}_ \n [Clique para acessar]({item['link']})"
+                itemMessage = f"*{item['title']}* \n Está em promoção custando: ~R${precoAnterior}~ R${item['price']} \n [Clique para acessar]({item['link']})"
                 bot.send_message(DESTINATION, itemMessage, parse_mode='MARKDOWN')
 
 print("Finalizando")
