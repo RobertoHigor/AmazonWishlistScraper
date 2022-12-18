@@ -18,8 +18,9 @@ class AmazonWishlistSpider(scrapy.Spider):
     name = 'amazonwishlist'
     allowed_domains = ['www.amazon.com.br']
 
-    def __init__(self, uri, scraped_data, **kwargs):
+    def __init__(self, userToSend, scraped_data, **kwargs):
         self.scraped_data = scraped_data
+        uri = userToSend['wishlist']
         self.start_urls = [uri]
 
         domain = re.sub(r'(http|https)?://', '', uri)
