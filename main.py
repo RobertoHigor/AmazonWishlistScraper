@@ -90,7 +90,7 @@ def check_produto_existe(item):
 def get_preco_medio(item):
         conn = sqlite3.connect('wishlist.sqlite')
         cursor = conn.cursor()
-        data = cursor.execute('SELECT AVG(Price) FROM wishlist_history WHERE Id = ?',
+        data = cursor.execute('SELECT AVG(Price) FROM wishlist_history WHERE ProductId = ?',
                 (item["id"],)).fetchone()
         conn.close()        
         return data[0]
