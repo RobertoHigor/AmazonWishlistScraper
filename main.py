@@ -11,44 +11,50 @@ DISCOUNT = os.environ.get('DISCOUNT').replace(',', '.')
 
 bot = telebot.TeleBot(BOT_TOKEN)
 
-def is_on_sale(item):
-        last_item = check_if_exists(item)
+def esta_em_promocao(item):
+        last_item = check_produto_existe(item)
         if last_item is None:
-                add_item(item)
-                add_item_history(item)
+                add_produto(item)
+                add_produto_historico(item)
                 return False, 0
 
-        precoAtual = item['price']
+        preco_atual = item['price']
         precoAnterior = last_item['price']
         # Somente salvar se houve mudança de preco
-        if precoAtual != precoAnterior:
-                add_item_history(item)
-                update_item(item) 
+        if preco_atual != precoAnterior:
+                add_produto_historico(item)
+                update_produto(item) 
 
         # Não salvar se preço for 0
-        if precoAtual <= 0:
+        if preco_atual <= 0:
                 return False, 0
-        elif precoAtual > 0 and precoAnterior == 0:
+        elif preco_atual > 0 and precoAnterior == 0:
                 aviso_volta_estoque(item)
                 return False, 0     
 
-        #if item['oferta'] is not None or precoAtual < precoAnterior:
+        # Se o preço é <= 0, então ñ está em promoção
         if precoAnterior <= 0:
                 return False, 0
-        if (precoAnterior / precoAtual) - 1  > float(DISCOUNT):
+        
+        # Busca média do preço
+        preco_medio = get_preco_medio(item)
+        if teve_desconto(preco_medio, preco_atual) and teve_desconto(precoAnterior, preco_atual):
                 return True, precoAnterior        
 
         return False, 0
 
-def add_item(item):
+def teve_desconto(preco, preco_base):
+        return (preco / preco_base) - 1  > float(DISCOUNT)
+
+def add_produto(item):
         conn = sqlite3.connect('wishlist.sqlite')
         cursor = conn.cursor()
-        aux = f'INSERT INTO wishlist (id, title, price) VALUES ("{item["id"]}", "{item["title"]}", {item["price"]})'
-        cursor.execute(aux)
+        cursor.execute('INSERT INTO wishlist (id, title, price) VALUES (?, ?, ?)',
+                (item["id"], item["title"], item["price"]))
         conn.commit()
         conn.close()
 
-def add_item_history(item):
+def add_produto_historico(item):
         conn = sqlite3.connect('wishlist.sqlite')
         cursor = conn.cursor()
         aux = f'INSERT INTO wishlist_history (ProductId, Price, DatePrice) VALUES ("{item["id"]}", {item["price"]}, datetime("now"))'
@@ -56,7 +62,7 @@ def add_item_history(item):
         conn.commit()
         conn.close()
         
-def update_item(item):
+def update_produto(item):
         conn = sqlite3.connect('wishlist.sqlite')
         cursor = conn.cursor()
         aux = f'UPDATE wishlist SET price = {item["price"]} WHERE Id ="{item["id"]}"'
@@ -64,12 +70,12 @@ def update_item(item):
         conn.commit()
         conn.close()
 
-def check_if_exists(item):
+def check_produto_existe(item):
+        # TODO: Fechar conexão com ContexLib
         conn = sqlite3.connect('wishlist.sqlite')
         cursor = conn.cursor()
-        aux = f'SELECT Id, Title, Price FROM wishlist WHERE Id = "{item["id"]}"'
-        cursor.execute(aux)
-        data = cursor.fetchone()
+        data = cursor.execute('SELECT Id, Title, Price FROM wishlist WHERE Id = ?',
+                (item["id"], )).fetchone()
         conn.close()
 
         if data is not None:
@@ -80,6 +86,14 @@ def check_if_exists(item):
                 }
         
         return data
+
+def get_preco_medio(item):
+        conn = sqlite3.connect('wishlist.sqlite')
+        cursor = conn.cursor()
+        data = cursor.execute('SELECT AVG(Price) FROM wishlist_history WHERE Id = ?',
+                (item["id"],)).fetchone()
+        conn.close()        
+        return data[0]
 
 def aviso_volta_estoque(item):
         itemMessage = f"*{item['title']}* \n Está de volta em estoque custando: {item['price']} \n [Clique para acessar]({item['link']})"
@@ -115,7 +129,7 @@ for wishlist in wishlist_data_by_user:
                         logging.info(f"Removendo preços duplicados por conter {item['title']} na lista")
                         remover_precos_duplicados_historico()
 
-                sale, precoAnterior = is_on_sale(item)
+                sale, precoAnterior = esta_em_promocao(item)
                 #TODO: Controle do que ja foi alertado
                 # if sale and item['oferta'] is not None:
                 #         logging.info(f"Enviando item {item['title']} em promoção por {item['price']}")
@@ -123,7 +137,7 @@ for wishlist in wishlist_data_by_user:
                 #         bot.send_message(DESTINATION, itemMessage, parse_mode='MARKDOWN')
                 if sale:
                         logging.info(f"Enviando item {item['title']} voltando em estoque por {item['price']}")
-                        itemMessage = f"*{item['title']}* \n Está em promoção custando: ~R${precoAnterior}~ R${item['price']} \n [Clique para acessar]({item['link']})"
+                        itemMessage = f"*{item['title']}* \n Está em promoção custando: ~~R${precoAnterior}~~ R${item['price']} \n [Clique para acessar]({item['link']})"
                         bot.send_message(wishlist['userId'], itemMessage, parse_mode='MARKDOWN')
 
 print("Finalizando")
