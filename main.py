@@ -38,10 +38,13 @@ def esta_em_promocao(item):
         
         # Busca média do preço
         preco_medio = get_preco_medio(item)
-        if (preco_medio / preco_atual) - 1  > float(DISCOUNT):
+        if teve_desconto(preco_medio, preco_atual) and teve_desconto(precoAnterior, preco_atual):
                 return True, precoAnterior        
 
         return False, 0
+
+def teve_desconto(preco, preco_base):
+        return (preco / preco_base) - 1  > float(DISCOUNT)
 
 def add_produto(item):
         conn = sqlite3.connect('wishlist.sqlite')
