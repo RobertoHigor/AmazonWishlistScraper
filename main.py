@@ -37,8 +37,8 @@ def esta_em_promocao(item):
                 return False, 0
         
         # Busca média do preço
-        preco_medio = get_preco_medio(item)
-        if teve_desconto(preco_medio, preco_atual) and teve_desconto(precoAnterior, preco_atual):
+        #preco_medio = get_preco_medio(item)
+        if teve_desconto(precoAnterior, preco_atual):
                 return True, precoAnterior        
 
         return False, 0
