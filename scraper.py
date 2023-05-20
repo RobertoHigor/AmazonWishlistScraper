@@ -1,4 +1,5 @@
 from scrapy.crawler import CrawlerProcess
+from model.Wishlist import Wishlist
 from spiders.amazonwishlist import AmazonWishlistSpider
 
 

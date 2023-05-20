@@ -1,17 +1,10 @@
 import scrapy
 import re
 from urllib.parse import urlparse
-import math
+from model.Wishlist import Wishlist
 
 # https://www.programiz.com/python-programming/examples/check-string-number
-def try_parse_float(num):
-    try:
-        convertedValue = float(num)
-        if math.isinf(convertedValue):
-            return 0
-        return convertedValue
-    except ValueError:
-        return 0
+
 
 class AmazonWishlistSpider(scrapy.Spider):
     BASE_URL = 'https://www.amazon.com.br'
@@ -35,18 +28,12 @@ class AmazonWishlistSpider(scrapy.Spider):
             id = item.css('li::attr(data-itemid)').extract_first()
             title = item.css('#itemName_'+id + "::attr(title)").extract_first()
             price = item.css('::attr(data-price)').extract_first()
-            ofertaDesconto = item.css('div.wl-deal-rich-badge-label span::text').extract_first()
+            oferta_desconto = item.css('div.wl-deal-rich-badge-label span::text').extract_first()
             link = item.css('#itemName_'+id + "::attr(href)").extract_first()
-            obj = {
-                'id': id,
-                'title': title,
-                'price': try_parse_float(price),
-                'oferta': ofertaDesconto,
-                'link': self.BASE_URL + link
-            }       
-
+            eh_marketplace = item.css('span.wl-item-delivery-badge span::text').extract_first()
+            obj = Wishlist(id, title, price, oferta_desconto, link, eh_marketplace) 
             self.scraped_data.append(obj)
-            yield obj
+            yield vars(obj)
 
         # manage "infinite scrolldown"
         has_next = response.css('input.showMoreUrl::attr(value)').extract_first()
