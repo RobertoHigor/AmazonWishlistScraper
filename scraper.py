@@ -5,7 +5,7 @@ from spiders.amazonwishlist import AmazonWishlistSpider
 def get_data(usersToSend):
     process = CrawlerProcess(settings={
         'FEED_FORMAT': 'json',
-        'LOG_LEVEL': 'INFO'
+        'LOG_LEVEL': 'ERROR'
     })
    
     scraped_data_by_user = []
