@@ -22,4 +22,4 @@ class Wishlist(object):
             return 0
         
     def teve_desconto(self, preco_anterior, preco_medio):
-        return (self.price / preco_anterior) - 1  > self.DISCOUNT and (self.price / preco_medio) - 1  > self.DISCOUNT
+        return (preco_anterior / self.price ) - 1  > self.DISCOUNT and (preco_medio / self.price ) - 1  > self.DISCOUNT

@@ -4,6 +4,7 @@ import telebot
 import os
 import logging
 import data.wishlistData as wishlistData
+
 BOT_TOKEN = os.environ.get('BOT_TOKEN')
 WISHLIST_URL = os.environ.get('WISHLIST_URL')
 DESTINATION = os.environ.get('DESTINATION')
