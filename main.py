@@ -72,12 +72,12 @@ for wishlist in wishlist_data_by_user:
                 sale, precoAnterior = esta_em_promocao(item, wishlist['userId'])
 
                 if sale and item.oferta is not None:
-                        logging.info(f"Enviando item {item.title} em promoção por {item.price}")
+                        logging.info(f"Enviando item {item.title} em oferta por {item.price}")
 
                         itemMessage = f"\# {item.title} \n Está em oferta Amazon custando: {item.price} (desconto de {item.oferta}%)"
                         bot.send_message(wishlist['userId'], itemMessage, parse_mode='Markdown')
                 elif sale:
-                        logging.info(f"Enviando item {item['title']} voltando em estoque por {item['price']}")
+                        logging.info(f"Enviando item {item.title} em promoção por {item.price}")
 
                         itemMessage = f"*{item.title}* \n Está em promoção custando: ~R${precoAnterior}~ R${item.price} \n [Clique para acessar]({item.link})"
                         bot.send_message(wishlist['userId'], itemMessage, parse_mode='Markdown')
