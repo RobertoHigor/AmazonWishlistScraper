@@ -42,8 +42,8 @@ def esta_em_promocao(item:Wishlist, user_id):
 
         return False, 0
 
-def aviso_volta_estoque(item, user_id):
-        itemMessage = f"*{item['title']}* \n Está de volta em estoque custando: {item['price']} \n [Clique para acessar]({item['link']})"
+def aviso_volta_estoque(item:Wishlist, user_id):
+        itemMessage = f"*{item.title}* \n Está de volta em estoque custando: {item.price} \n [Clique para acessar]({item.link})"
         bot.send_message(user_id, itemMessage, parse_mode='Markdown')
 
 
