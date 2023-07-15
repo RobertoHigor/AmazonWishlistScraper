@@ -64,6 +64,9 @@ wishlist_data_by_user = scraper.get_data(usersToSend)
 
 for wishlist in wishlist_data_by_user:
         item:Wishlist
+        if not wishlist['items']:
+                bot.send_message(wishlist['userId'], 'Lista vazia. Verificar bot', parse_mode='Markdown')
+                
         for item in wishlist['items']:
                 # Executar script se for switch oled
                 if item.id == 'I3KMIYEAPY0NB5':
