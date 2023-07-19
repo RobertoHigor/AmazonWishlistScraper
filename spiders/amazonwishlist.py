@@ -28,10 +28,11 @@ class AmazonWishlistSpider(scrapy.Spider):
             id = item.css('li::attr(data-itemid)').extract_first()
             title = item.css('#itemName_'+id + "::attr(title)").extract_first()
             price = item.css('::attr(data-price)').extract_first()
+            tem_preco_destacado = item.css('div.price-section span.a-price span.a-offscreen::text').extract_first()
             oferta_desconto = item.css('div.wl-deal-rich-badge-label span::text').extract_first()
             link = item.css('#itemName_'+id + "::attr(href)").extract_first()
             eh_marketplace = item.css('span.wl-item-delivery-badge span::text').extract_first()
-            obj = Wishlist(id, title, price, oferta_desconto, link, eh_marketplace) 
+            obj = Wishlist(id, title, price, oferta_desconto, link, eh_marketplace, tem_preco_destacado) 
             self.scraped_data.append(obj)
             yield vars(obj)
 

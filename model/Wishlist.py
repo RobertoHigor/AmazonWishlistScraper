@@ -4,13 +4,13 @@ import os
 class Wishlist(object):
     BASE_URL = 'https://www.amazon.com.br'
     DISCOUNT = float(os.environ.get('DISCOUNT').replace(',', '.'))
-    def __init__(self, id:str=None, title:str=None, price:float=None, oferta:float=None, link:str=None, eh_marketplace:str=None):
+    def __init__(self, id:str=None, title:str=None, price:float=None, oferta:float=None, link:str=None, eh_marketplace:str=None, tem_preco_destacado:str=None):
         self.id = id
         self.title = title
         self.price:float = self.try_parse_float(price)
         self.oferta = oferta
         self.link:str = self.BASE_URL + link
-        self.eh_marketplace:bool = eh_marketplace is not None
+        self.eh_marketplace:bool = (eh_marketplace is not None and "envio" in eh_marketplace) or tem_preco_destacado is None
 
     def try_parse_float(self, num):
         try:
