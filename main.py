@@ -43,8 +43,8 @@ def esta_em_promocao(item:Wishlist, user_id):
         return False, 0
 
 def aviso_volta_estoque(item:Wishlist, user_id):
-        itemMessage = f"*{item.title}* \n Está de volta em estoque custando: {item.price} \n [Clique para acessar]({item.link})"
-        bot.send_message(user_id, itemMessage, parse_mode='Markdown')
+        item_message = f"*{item.title}* \n Está de volta em estoque custando: {item.price} \n [Clique para acessar]({item.link})"
+        bot.send_message(user_id, item_message, parse_mode='Markdown')
 
 
 def get_users_to_scrape():
@@ -63,10 +63,7 @@ usersToSend = get_users_to_scrape()
 wishlist_data_by_user = scraper.get_data(usersToSend)
 
 for wishlist in wishlist_data_by_user:
-        item:Wishlist
-        if not wishlist['items']:
-                bot.send_message(wishlist['userId'], 'Lista vazia. Verificar bot', parse_mode='Markdown')
-                
+        item:Wishlist       
         for item in wishlist['items']:
                 # Executar script se for switch oled
                 if item.id == 'I3KMIYEAPY0NB5':
@@ -78,7 +75,7 @@ for wishlist in wishlist_data_by_user:
                 if sale and item.oferta is not None:
                         logging.info(f"Enviando item {item.title} em oferta por {item.price}")
 
-                        itemMessage = f"\# {item.title} \n Está em oferta Amazon custando: {item.price} (desconto de {item.oferta}%)"
+                        itemMessage = f"*{item.title}* \n Está em oferta Amazon custando: {item.price} (desconto de {item.oferta}%) \n [Clique para acessar]({item.link})"
                         bot.send_message(wishlist['userId'], itemMessage, parse_mode='Markdown')
                 elif sale:
                         logging.info(f"Enviando item {item.title} em promoção por {item.price}")
