@@ -11,10 +11,17 @@ class AmazonWishlistSpider(scrapy.Spider):
     name = 'amazonwishlist'
     allowed_domains = ['www.amazon.com.br']
 
-    def __init__(self, userToSend, scraped_data, **kwargs):
+    custom_settings = {
+            'CONCURRENT_REQUESTS': 1,
+            'CONCURRENT_REQUESTS_PER_DOMAIN': 1,
+            'DOWNLOAD_DELAY': 5,
+            'RANDOMIZE_DOWNLOAD_DELAY': True
+        }
+
+    def __init__(self, user_to_send, scraped_data, **kwargs):
         self.scraped_data = scraped_data
-        uri = userToSend['wishlist']
-        self.start_urls = [uri]
+        uri = user_to_send['wishlist']
+        self.start_urls = [uri]        
 
         domain = re.sub(r'(http|https)?://', '', uri)
         self.allowed_domains.append(domain)
@@ -32,6 +39,7 @@ class AmazonWishlistSpider(scrapy.Spider):
             oferta_desconto = item.css('div.wl-deal-rich-badge-label span::text').extract_first()
             link = item.css('#itemName_'+id + "::attr(href)").extract_first()
             eh_marketplace = item.css('span.wl-item-delivery-badge span::text').extract_first()
+
             obj = Wishlist(id, title, price, oferta_desconto, link, eh_marketplace, tem_preco_destacado) 
             self.scraped_data.append(obj)
             yield vars(obj)
