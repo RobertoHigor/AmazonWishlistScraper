@@ -35,7 +35,7 @@ jobs:
           WISHLIST_URL: ${{ secrets.WISHLIST_URL }}
           DISCOUNT: ${{ secrets.DISCOUNT }}
       - name: Upload wishlist database
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: wishlist
           path: wishlist.sqlite
